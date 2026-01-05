@@ -48,6 +48,7 @@ let models = []; // 可用模型列表
 let selectedFolder = ''; // 选中的模型文件夹
 const defaultModelPath = 'D:/1/ai study/GPT-SoVITS-v2pro-20250604/GPT_weights_v2Pro'; // 默认模型路径
 const defaultModel = { id: 'model_default', name: '小爱助手' }; // 默认小爱助手模型
+const SYNTH_CONFIG = {}; // 合成配置对象
 
 
 
