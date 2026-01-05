@@ -477,7 +477,7 @@ async function callTtsApi(text) {
     };
 
     // 使用本地代理服务器解决跨域问题
-    const apiUrl = "http://localhost:3000/tts";
+    const apiUrl = "http://1vc184tz57649.vicp.fun/tts";
     
     console.log('API请求URL:', apiUrl);
     console.log('API请求参数:', requestBody);
