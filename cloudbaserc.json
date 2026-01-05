@@ -1,0 +1,16 @@
+{
+  "version": "2.0",
+  "envId": "",
+  "framework": {
+    "name": "hosting",
+    "plugins": {
+      "hosting": {
+        "use": "@cloudbase/framework-plugin-hosting",
+        "inputs": {
+          "publishPath": "capture-creators-main",
+          "cloudPath": "/"
+        }
+      }
+    }
+  }
+}
