@@ -7,7 +7,7 @@
       "hosting": {
         "use": "@cloudbase/framework-plugin-hosting",
         "inputs": {
-          "publishPath": "capture-creators-main",
+          "publishPath": "vir",
           "cloudPath": "/"
         }
       }
