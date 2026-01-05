@@ -450,14 +450,6 @@ navItems.forEach(item => {
   });
 });
 
-// ===== API 配置 =====
-const API_CONFIG = {
-  baseUrl: 'http://127.0.0.1:9880', // API服务地址
-  endpoints: {
-    tts: '/tts' // 语音合成端点
-  }
-};
-
 // ===== API 调用函数 =====
 // 调用TTS API进行语音合成，使用与test.py相同的参数
 async function callTtsApi(text) {
@@ -476,8 +468,9 @@ async function callTtsApi(text) {
       parallel_infer: true  // 并行推理
     };
 
-    // 使用本地代理服务器解决跨域问题
-    const apiUrl = "http://1vc184tz57649.vicp.fun/tts";
+    // 使用花生壳公网地址直接调用API，动态匹配当前页面协议
+    const protocol = window.location.protocol;
+    const apiUrl = `${protocol}//1vc184tz57649.vicp.fun/tts`;
     
     console.log('API请求URL:', apiUrl);
     console.log('API请求参数:', requestBody);

@@ -2,10 +2,12 @@ import requests
 import os
 
 # API 地址（去掉原 GET 请求中的查询参数）
-url = "http://127.0.0.1:9880/tts"
+# url = "http://127.0.0.1:9880/tts"
+url = "http://1vc184tz57649.vicp.fun/tts"
+
 # 将原 GET 参数转为 JSON 格式的请求体
 payload = {
-    "text": "你好，我是数字人小爱，请问有什么可以帮助你的吗？期待你的回复。",#待合成的文本
+    "text": "你好，我是数字人小爱，今天过得怎么样？",#待合成的文本
     "text_lang": "zh",  # 文本语言
     "ref_audio_path": "D:/1/ai study/GPT-SoVITS-v2pro-20250604/output/slicer_opt/素材.mp3_0001644800_0001769600.wav",  # 参考音频路径
     "prompt_lang": "zh",  # 提示文本语言
