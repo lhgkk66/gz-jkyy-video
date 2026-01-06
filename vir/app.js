@@ -770,11 +770,14 @@ function initAIChat() {
     return div.innerHTML;
   }
   
-  // 本地回答映射表
+  // 本地回答映射表，支持文本和图片
   const localAnswers = {
-    '介绍一下你自己': '您好，我是您的美容助手小爱，专注美业多年，擅长皮肤管理、妆容定制与护肤方案设计。随时为您提供专业、安全、个性化的美丽建议，让每一次护肤都更科学、更高效。',
-    '你能做什么': '我可以为您提供多种服务，包括回答问题、提供信息、生成文本、协助学习和工作等。如果您有任何需求，随时告诉我！',
-    '我想了解更多': '当然可以！我可以为您提供关于AI技术、编程、科学、文化等各个领域的信息。您具体想了解哪方面的内容呢？'
+    '介绍一下你自己': { text: '您好，我是您的美容助理小爱，专注美业多年，擅长皮肤管理、妆容定制与护肤方案设计。随时为您提供专业、安全、个性化的美丽建议，让每一次护肤都更科学、更高效。' },
+    '你能做什么': { text: '作为您的美容助理，我可以为您提供专业的护肤建议、彩妆指导、产品推荐、美容技巧分享，以及针对痘痘、敏感、暗沉等肌肤问题的解决方案。随时告诉我您的美容需求，我会为您量身定制最适合的方案！' },
+    '我想了解更多': { 
+      text: '扫码二维码咨询更多信息',
+      image: 'inputs/假二维码 .png' 
+    }
   };
 
   // 发送消息函数
@@ -797,11 +800,41 @@ function initAIChat() {
         removeTypingIndicator();
         
         // 使用本地回答
-        const responseText = localAnswers[message];
-        addMessage('ai', responseText);
+        const answer = localAnswers[message];
+        const responseText = answer.text;
+        
+        // 创建消息元素
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message message-ai';
+        
+        let messageContent = `
+          <div class="message-avatar">🤖</div>
+          <div class="message-content">
+            <p>${escapeHtml(responseText)}</p>`;
+        
+        // 如果有图片，添加图片元素
+        if (answer.image) {
+          messageContent += `
+            <div class="chat-image-container">
+              <img src="${answer.image}" alt="美容相关图片" class="chat-image">
+            </div>`;
+        }
+        
+        messageContent += `
+          </div>
+        `;
+        
+        messageDiv.innerHTML = messageContent;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // 记录到聊天历史
+        chatHistory.push({ role: 'ai', content: responseText });
+        if (chatHistory.length > MAX_HISTORY) {
+          chatHistory.shift();
+        }
         
         if (responseText.length <= 200) {
-          const messageDiv = chatMessages.lastElementChild;
           const chatModelSelect = document.getElementById('chatModelSelect');
           const selectedModel = chatModelSelect ? chatModelSelect.value : 'xiaoai';
           
@@ -838,7 +871,6 @@ function initAIChat() {
             messageDiv.querySelector('.message-content').appendChild(errorDiv);
           }
         } else {
-          const messageDiv = chatMessages.lastElementChild;
           const lengthWarning = document.createElement('div');
           lengthWarning.className = 'chat-length-warning';
           lengthWarning.innerHTML = `<span>回复文本过长（${responseText.length}字），未生成语音</span>`;
