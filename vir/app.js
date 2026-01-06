@@ -770,6 +770,13 @@ function initAIChat() {
     return div.innerHTML;
   }
   
+  // 本地回答映射表
+  const localAnswers = {
+    '介绍一下你自己': '您好！我是AI智能助手，基于先进的大语言模型开发，能够理解和生成自然语言，为您提供各种信息和帮助。',
+    '你能做什么': '我可以为您提供多种服务，包括回答问题、提供信息、生成文本、协助学习和工作等。如果您有任何需求，随时告诉我！',
+    '我想了解更多': '当然可以！我可以为您提供关于AI技术、编程、科学、文化等各个领域的信息。您具体想了解哪方面的内容呢？'
+  };
+
   // 发送消息函数
   async function sendMessage(message) {
     if (!message.trim()) return;
@@ -785,67 +792,122 @@ function initAIChat() {
     showTypingIndicator();
     
     try {
-      const doubaoResult = await callDoubaoApi(message);
-      
-      removeTypingIndicator();
-      
-      if (doubaoResult.success) {
-        // 清洗豆包回复，移除表情符号和不可读字符
-        let responseText = doubaoResult.text;
-        // 使用正则表达式移除所有表情符号
-        responseText = responseText.replace(/[\u{1F600}-\u{1F6FF}\u{1F300}-\u{1F5FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E0}-\u{1F1FF}\u{1F680}-\u{1F6FF}\u{26A0}-\u{26FF}\u{FE0F}]/gu, '');
-        // 移除多余的空白字符
-        responseText = responseText.replace(/\s+/g, ' ').trim();
+      // 检查是否有本地回答
+      if (localAnswers.hasOwnProperty(message)) {
+        removeTypingIndicator();
         
+        // 使用本地回答
+        const responseText = localAnswers[message];
         addMessage('ai', responseText);
-      
-      if (responseText.length <= 200) {
-        const messageDiv = chatMessages.lastElementChild;
-        const chatModelSelect = document.getElementById('chatModelSelect');
-        const selectedModel = chatModelSelect ? chatModelSelect.value : 'xiaoai';
         
-        showGeneratingIndicator(messageDiv);
-        
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-          progress = Math.min(progress + Math.random() * 15, 90);
-          updateGeneratingProgress(progress);
-        }, 200);
-        
-        // 在文本前添加3个-符号，使生成的音频更加流畅
-        const textWithPrefix = `   ${responseText}`;
-        const ttsResult = await callChatApi(textWithPrefix, selectedModel);
-        
-        clearInterval(progressInterval);
-        updateGeneratingProgress(100);
-        setTimeout(() => removeGeneratingIndicator(), 300);
-        
-        if (ttsResult.success) {
-          const audioContainer = document.createElement('div');
-          audioContainer.className = 'chat-audio-container';
-          audioContainer.innerHTML = `
-            <audio controls class="chat-audio-player">
-              <source src="${ttsResult.audioUrl}" type="audio/wav">
-              您的浏览器不支持音频播放
-             </audio>
-          `;
-          messageDiv.querySelector('.message-content').appendChild(audioContainer);
+        if (responseText.length <= 200) {
+          const messageDiv = chatMessages.lastElementChild;
+          const chatModelSelect = document.getElementById('chatModelSelect');
+          const selectedModel = chatModelSelect ? chatModelSelect.value : 'xiaoai';
+          
+          showGeneratingIndicator(messageDiv);
+          
+          let progress = 0;
+          const progressInterval = setInterval(() => {
+            progress = Math.min(progress + Math.random() * 15, 90);
+            updateGeneratingProgress(progress);
+          }, 200);
+          
+          // 在文本前添加3个-符号，使生成的音频更加流畅
+          const textWithPrefix = `   ${responseText}`;
+          const ttsResult = await callChatApi(textWithPrefix, selectedModel);
+          
+          clearInterval(progressInterval);
+          updateGeneratingProgress(100);
+          setTimeout(() => removeGeneratingIndicator(), 300);
+          
+          if (ttsResult.success) {
+            const audioContainer = document.createElement('div');
+            audioContainer.className = 'chat-audio-container';
+            audioContainer.innerHTML = `
+              <audio controls class="chat-audio-player">
+                <source src="${ttsResult.audioUrl}" type="audio/wav">
+                您的浏览器不支持音频播放
+               </audio>
+            `;
+            messageDiv.querySelector('.message-content').appendChild(audioContainer);
+          } else {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'chat-length-warning';
+            errorDiv.innerHTML = `<span>语音生成失败：${ttsResult.error}</span>`;
+            messageDiv.querySelector('.message-content').appendChild(errorDiv);
+          }
         } else {
-          const errorDiv = document.createElement('div');
-          errorDiv.className = 'chat-length-warning';
-          errorDiv.innerHTML = `<span>语音生成失败：${ttsResult.error}</span>`;
-          messageDiv.querySelector('.message-content').appendChild(errorDiv);
+          const messageDiv = chatMessages.lastElementChild;
+          const lengthWarning = document.createElement('div');
+          lengthWarning.className = 'chat-length-warning';
+          lengthWarning.innerHTML = `<span>回复文本过长（${responseText.length}字），未生成语音</span>`;
+          messageDiv.querySelector('.message-content').appendChild(lengthWarning);
         }
       } else {
-        const messageDiv = chatMessages.lastElementChild;
-        const lengthWarning = document.createElement('div');
-        lengthWarning.className = 'chat-length-warning';
-        lengthWarning.innerHTML = `<span>回复文本过长（${responseText.length}字），未生成语音</span>`;
-        messageDiv.querySelector('.message-content').appendChild(lengthWarning);
+        // 调用豆包API获取回答
+        const doubaoResult = await callDoubaoApi(message);
+        
+        removeTypingIndicator();
+        
+        if (doubaoResult.success) {
+          // 清洗豆包回复，移除表情符号和不可读字符
+          let responseText = doubaoResult.text;
+          // 使用正则表达式移除所有表情符号
+          responseText = responseText.replace(/[\u{1F600}-\u{1F6FF}\u{1F300}-\u{1F5FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E0}-\u{1F1FF}\u{1F680}-\u{1F6FF}\u{26A0}-\u{26FF}\u{FE0F}]/gu, '');
+          // 移除多余的空白字符
+          responseText = responseText.replace(/\s+/g, ' ').trim();
+          
+          addMessage('ai', responseText);
+          
+          if (responseText.length <= 200) {
+            const messageDiv = chatMessages.lastElementChild;
+            const chatModelSelect = document.getElementById('chatModelSelect');
+            const selectedModel = chatModelSelect ? chatModelSelect.value : 'xiaoai';
+            
+            showGeneratingIndicator(messageDiv);
+            
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+              progress = Math.min(progress + Math.random() * 15, 90);
+              updateGeneratingProgress(progress);
+            }, 200);
+            
+            // 在文本前添加3个-符号，使生成的音频更加流畅
+            const textWithPrefix = `   ${responseText}`;
+            const ttsResult = await callChatApi(textWithPrefix, selectedModel);
+            
+            clearInterval(progressInterval);
+            updateGeneratingProgress(100);
+            setTimeout(() => removeGeneratingIndicator(), 300);
+            
+            if (ttsResult.success) {
+              const audioContainer = document.createElement('div');
+              audioContainer.className = 'chat-audio-container';
+              audioContainer.innerHTML = `
+                <audio controls class="chat-audio-player">
+                  <source src="${ttsResult.audioUrl}" type="audio/wav">
+                  您的浏览器不支持音频播放
+                 </audio>
+              `;
+              messageDiv.querySelector('.message-content').appendChild(audioContainer);
+            } else {
+              const errorDiv = document.createElement('div');
+              errorDiv.className = 'chat-length-warning';
+              errorDiv.innerHTML = `<span>语音生成失败：${ttsResult.error}</span>`;
+              messageDiv.querySelector('.message-content').appendChild(errorDiv);
+            }
+          } else {
+            const messageDiv = chatMessages.lastElementChild;
+            const lengthWarning = document.createElement('div');
+            lengthWarning.className = 'chat-length-warning';
+            lengthWarning.innerHTML = `<span>回复文本过长（${responseText.length}字），未生成语音</span>`;
+            messageDiv.querySelector('.message-content').appendChild(lengthWarning);
+          }
+        } else {
+          addMessage('ai', `抱歉，处理您的请求时遇到问题：${doubaoResult.error}。请检查豆包API密钥或网络连接。`);
+        }
       }
-    } else {
-      addMessage('ai', `抱歉，处理您的请求时遇到问题：${doubaoResult.error}。请检查豆包API密钥或网络连接。`);
-    }
     } catch (error) {
       removeTypingIndicator();
       addMessage('ai', `抱歉，处理您的请求时遇到未知错误：${error.message}`);
