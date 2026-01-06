@@ -1,9 +1,59 @@
 // ===== DOM元素获取 =====
-// 侧边栏相关元素
-const sidebar = document.getElementById('sidebar');
-const toggleSidebar = document.getElementById('toggleSidebar');
-const navItems = document.querySelectorAll('.nav-item');
+// 页面相关元素
 const pages = document.querySelectorAll('.page');
+
+// 导航相关元素
+const mobilePageTitle = document.querySelector('.mobile-page-title');
+
+// 页面标题映射表
+const pageTitles = {
+  'ai-chat': 'AI智能问答',
+  'voice-clone': 'AI声音克隆',
+  'voice-library': '声音库',
+  'settings': '设置'
+};
+
+// 更新移动端页面标题
+function updateMobilePageTitle(pageName) {
+  if (mobilePageTitle) {
+    mobilePageTitle.textContent = pageTitles[pageName] || 'AI智能问答';
+  }
+}
+
+// ===== 顶部导航栏页面切换功能 =====
+function initTopNavigation() {
+  const navBtns = document.querySelectorAll('.nav-btn');
+  const pages = document.querySelectorAll('.page');
+  
+  // 导航按钮点击事件处理
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pageName = btn.dataset.page;
+      
+      // 更新导航按钮激活状态
+      navBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      // 显示对应页面
+      pages.forEach(page => {
+        page.classList.remove('active');
+        if (page.id === `page-${pageName}`) {
+          page.classList.add('active');
+        }
+      });
+      
+      // 更新移动端页面标题
+      updateMobilePageTitle(pageName);
+      
+      console.log('顶部导航项点击:', pageName);
+    });
+  });
+  
+  console.log('顶部导航功能初始化完成');
+}
+
+// 初始化顶部导航功能
+initTopNavigation();
 
 // 文件上传相关元素
 const uploadZone = document.getElementById('uploadZone');
@@ -49,33 +99,6 @@ let selectedFolder = ''; // 选中的模型文件夹
 const defaultModelPath = 'D:/1/ai study/GPT-SoVITS-v2pro-20250604/GPT_weights_v2Pro'; // 默认模型路径
 const defaultModel = { id: 'model_default', name: '小爱助手' }; // 默认小爱助手模型
 const SYNTH_CONFIG = {}; // 合成配置对象
-
-
-
-// ===== 侧边栏切换功能 =====
-toggleSidebar.addEventListener('click', () => {
-  sidebar.classList.toggle('collapsed');
-});
-
-// ===== 导航切换功能 =====
-navItems.forEach(item => {
-  item.addEventListener('click', (e) => {
-    e.preventDefault();
-    const pageName = item.dataset.page;
-    
-    // 更新导航项激活状态
-    navItems.forEach(nav => nav.classList.remove('active'));
-    item.classList.add('active');
-    
-    // 显示对应页面
-    pages.forEach(page => {
-      page.classList.remove('active');
-      if (page.id === `page-${pageName}`) {
-        page.classList.add('active');
-      }
-    });
-  });
-});
 
 // ===== 文件上传功能 =====
 // 点击上传区域触发文件选择
@@ -401,6 +424,11 @@ function selectModel() {
 
 // 更新开始按钮状态（当有模型和文本时启用）
 function updateStartButton() {
+  // 检查元素是否存在，防止在其他页面调用时出错
+  if (!startBtn || !textInput) {
+    return;
+  }
+  
   const hasModel = selectedModel !== null;
   const hasText = textInput.value.trim().length > 0;
   startBtn.disabled = !(hasModel && hasText);
@@ -434,22 +462,7 @@ if (modelSelect) {
   modelSelect.addEventListener('change', selectModel);
 }
 
-// 页面切换时的处理
-navItems.forEach(item => {
-  item.addEventListener('click', (e) => {
-    const pageName = item.dataset.page;
-    if (pageName === 'voice-clone') {
-      // 重置模型选择，但保留默认模型
-      selectedFolder = '';
-      
-      // 更新UI
-      document.getElementById('selectedFolder').textContent = '使用默认模型';
-      
-      // 重新初始化默认模型
-      initDefaultModel();
-    }
-  });
-});
+// 移除重复的页面切换处理 - 已在导航切换功能中实现
 
 // ===== API 调用函数 =====
 // 调用TTS API进行语音合成，使用与test.py相同的参数
@@ -459,7 +472,7 @@ async function callTtsApi(text) {
     const requestBody = {
       text: text,  // 待合成的文本
       text_lang: "zh",  // 文本语言
-      ref_audio_path: "D:/1/ai study/GPT-SoVITS-v2pro-20250604/output/slicer_opt/素材.mp3_0001644800_0001769600.wav",  // 参考音频路径
+      ref_audio_path: "D:/1/ai study/GPT-SoVITS-v2pro-20250604/output/me_out/素材.mp3_0001644800_0001769600.wav",  // 参考音频路径
       prompt_lang: "zh",  // 提示文本语言
       prompt_text: "",  // 提示文本
       text_split_method: "cut3",  // 文本分割方法
@@ -613,35 +626,448 @@ function handleConfigChange(configKey, value) {
 }
 
 // ===== 应用初始化 =====
-// 初始化默认模型
-function initDefaultModel() {
-  const modelSelect = document.getElementById('modelSelect');
+// 初始化默认模型（声音克隆页面）
+function initVoiceCloneModel() {
+  const voiceModelSelect = document.getElementById('voiceModelSelect');
   const modelHint = document.getElementById('modelHint');
   
-  // 清空下拉框
-  modelSelect.innerHTML = '';
+  // 检查元素是否存在，防止在其他页面调用时出错
+  if (!voiceModelSelect) {
+    return;
+  }
   
-  // 添加默认模型
-  models = [defaultModel];
-  
-  const defaultOption = document.createElement('option');
-  defaultOption.value = defaultModel.id;
-  defaultOption.textContent = defaultModel.name;
-  modelSelect.appendChild(defaultOption);
-  
-  // 启用下拉框
-  modelSelect.disabled = false;
-  
-  // 自动选择默认模型
-  modelSelect.value = defaultModel.id;
+  // 设置默认模型
   selectedModel = defaultModel;
   
-  // 显示提示信息，因为只有默认模型
-  modelHint.classList.remove('hidden');
+  // 添加模型选择事件监听器
+  voiceModelSelect.addEventListener('change', () => {
+    const selectedValue = voiceModelSelect.value;
+    // 简单处理，直接使用选中值作为模型名称
+    selectedModel = { id: selectedValue, name: voiceModelSelect.options[voiceModelSelect.selectedIndex].text };
+    updateStartButton();
+  });
 }
 
-// 初始化默认模型
-initDefaultModel();
+// 初始化声音克隆模型
+initVoiceCloneModel();
 
 // 更新开始按钮的初始状态
 updateStartButton();
+
+// 在DOM加载完成后初始化AI聊天功能
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAIChat);
+} else {
+  initAIChat();
+}
+
+// ===== AI问答功能 =====
+let chatHistory = [];
+const MAX_HISTORY = 10;
+
+// 封装AI问答功能的初始化
+function initAIChat() {
+  // 在函数内部获取DOM元素，确保DOM已经加载完成
+  const chatMessages = document.getElementById('chatMessages');
+  const chatInput = document.getElementById('chatInput');
+  const chatSendBtn = document.getElementById('chatSendBtn');
+  const chatOptionBtns = document.querySelectorAll('.chat-option-btn');
+  // const chatModelSelect = document.getElementById('chatModelSelect');
+  
+  // 检查必要元素是否存在
+  if (!chatMessages || !chatInput || !chatSendBtn) {
+    console.error('AI聊天功能初始化失败：缺少必要的DOM元素');
+    return;
+  }
+  
+  console.log('AI聊天功能初始化中...');
+  
+  // 重置聊天历史
+  chatHistory = [];
+  
+  // 内部函数定义
+  function addMessage(role, content) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message message-${role}`;
+    
+    const avatar = role === 'ai' ? '🤖' : '👤';
+    
+    messageDiv.innerHTML = `
+      <div class="message-avatar">${avatar}</div>
+      <div class="message-content">
+        <p>${escapeHtml(content)}</p>
+      </div>
+    `;
+    
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    chatHistory.push({ role, content });
+    if (chatHistory.length > MAX_HISTORY) {
+      chatHistory.shift();
+    }
+  }
+  
+  function showTypingIndicator() {
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message message-ai';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.innerHTML = `
+      <div class="message-avatar">🤖</div>
+      <div class="message-content">
+        <div class="message-typing">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    `;
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+  
+  function removeTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+      typingIndicator.remove();
+    }
+  }
+  
+  function showGeneratingIndicator(messageDiv) {
+    const generatingDiv = document.createElement('div');
+    generatingDiv.className = 'chat-generating';
+    generatingDiv.id = 'generatingIndicator';
+    generatingDiv.innerHTML = `
+      <div class="generating-content">
+        <div class="generating-spinner"></div>
+        <span>正在生成语音...</span>
+      </div>
+      <div class="generating-progress">
+        <div class="generating-progress-bar" id="generatingProgressBar"></div>
+      </div>
+    `;
+    messageDiv.querySelector('.message-content').appendChild(generatingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+  
+  function updateGeneratingProgress(percent) {
+    const progressBar = document.getElementById('generatingProgressBar');
+    if (progressBar) {
+      progressBar.style.width = `${percent}%`;
+    }
+  }
+  
+  function removeGeneratingIndicator() {
+    const generatingIndicator = document.getElementById('generatingIndicator');
+    if (generatingIndicator) {
+      generatingIndicator.remove();
+    }
+  }
+  
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+  
+  // 发送消息函数
+  async function sendMessage(message) {
+    if (!message.trim()) return;
+    
+    addMessage('user', message);
+    chatInput.value = '';
+    chatSendBtn.disabled = true;
+    
+    // 重置输入框高度
+    chatInput.style.height = 'auto';
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+    
+    showTypingIndicator();
+    
+    try {
+      const doubaoResult = await callDoubaoApi(message);
+      
+      removeTypingIndicator();
+      
+      if (doubaoResult.success) {
+        // 清洗豆包回复，移除表情符号和不可读字符
+        let responseText = doubaoResult.text;
+        // 使用正则表达式移除所有表情符号
+        responseText = responseText.replace(/[\u{1F600}-\u{1F6FF}\u{1F300}-\u{1F5FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E0}-\u{1F1FF}\u{1F680}-\u{1F6FF}\u{26A0}-\u{26FF}\u{FE0F}]/gu, '');
+        // 移除多余的空白字符
+        responseText = responseText.replace(/\s+/g, ' ').trim();
+        
+        addMessage('ai', responseText);
+      
+      if (responseText.length <= 200) {
+        const messageDiv = chatMessages.lastElementChild;
+        const chatModelSelect = document.getElementById('chatModelSelect');
+        const selectedModel = chatModelSelect ? chatModelSelect.value : 'xiaoai';
+        
+        showGeneratingIndicator(messageDiv);
+        
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+          progress = Math.min(progress + Math.random() * 15, 90);
+          updateGeneratingProgress(progress);
+        }, 200);
+        
+        // 在文本前添加3个-符号，使生成的音频更加流畅
+        const textWithPrefix = `   ${responseText}`;
+        const ttsResult = await callChatApi(textWithPrefix, selectedModel);
+        
+        clearInterval(progressInterval);
+        updateGeneratingProgress(100);
+        setTimeout(() => removeGeneratingIndicator(), 300);
+        
+        if (ttsResult.success) {
+          const audioContainer = document.createElement('div');
+          audioContainer.className = 'chat-audio-container';
+          audioContainer.innerHTML = `
+            <audio controls class="chat-audio-player">
+              <source src="${ttsResult.audioUrl}" type="audio/wav">
+              您的浏览器不支持音频播放
+             </audio>
+          `;
+          messageDiv.querySelector('.message-content').appendChild(audioContainer);
+        } else {
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'chat-length-warning';
+          errorDiv.innerHTML = `<span>语音生成失败：${ttsResult.error}</span>`;
+          messageDiv.querySelector('.message-content').appendChild(errorDiv);
+        }
+      } else {
+        const messageDiv = chatMessages.lastElementChild;
+        const lengthWarning = document.createElement('div');
+        lengthWarning.className = 'chat-length-warning';
+        lengthWarning.innerHTML = `<span>回复文本过长（${responseText.length}字），未生成语音</span>`;
+        messageDiv.querySelector('.message-content').appendChild(lengthWarning);
+      }
+    } else {
+      addMessage('ai', `抱歉，处理您的请求时遇到问题：${doubaoResult.error}。请检查豆包API密钥或网络连接。`);
+    }
+    } catch (error) {
+      removeTypingIndicator();
+      addMessage('ai', `抱歉，处理您的请求时遇到未知错误：${error.message}`);
+    } finally {
+      chatSendBtn.disabled = false;
+    }
+  }
+  
+  // 绑定事件监听器
+  chatSendBtn.addEventListener('click', () => {
+    const message = chatInput.value.trim();
+    if (message) {
+      sendMessage(message);
+    }
+  });
+  
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      const message = chatInput.value.trim();
+      if (message) {
+        sendMessage(message);
+      }
+    }
+  });
+  
+  chatInput.addEventListener('input', () => {
+    chatInput.style.height = 'auto';
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+  });
+  
+  chatOptionBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const question = btn.dataset.question;
+      sendMessage(question);
+    });
+  });
+  
+  console.log('AI聊天功能初始化完成');
+}
+
+// 模型路径映射表 - 移到外部确保全局可访问
+const modelPaths = {
+  'xiaoyou': 'D:/1/ai study/GPT-SoVITS-v2pro-20250604/output/me_out/xiaoyou.wav',
+  'xiaoxu': 'D:/1/ai study/GPT-SoVITS-v2pro-20250604/output/me_out/xiaoxu.wav',
+  'xiaoai': 'D:/1/ai study/GPT-SoVITS-v2pro-20250604/output/me_out/素材.mp3_0001644800_0001769600.wav'
+};
+
+async function callChatApi(message, modelKey) {
+  try {
+    const protocol = window.location.protocol;
+    const apiUrl = `${protocol}//1vc184tz57649.vicp.fun/tts`;
+    
+    // 使用完整的本地文件路径作为参考音频路径
+    // 从modelPaths对象中获取对应的路径
+    const refAudioPath = modelPaths[modelKey] || modelPaths['xiaoai'];
+    
+    const requestBody = {
+      text: message,
+      text_lang: "zh",
+      ref_audio_path: refAudioPath,
+      prompt_lang: "zh",
+      prompt_text: "",
+      text_split_method: "cut3",
+      batch_size: 10,
+      media_type: "wav",
+      streaming_mode: false,
+      parallel_infer: true
+    };
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(requestBody),
+      signal: AbortSignal.timeout(60000)
+    });
+
+    if (!response.ok) {
+      throw new Error(`API请求失败: ${response.status}`);
+    }
+
+    const audioBlob = await response.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+    
+    return {
+      success: true,
+      audioUrl: audioUrl
+    };
+  } catch (error) {
+    console.error('API调用失败:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+async function callDoubaoApi(message) {
+  try {
+    const apiUrl = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
+    const apiKey = '8f29c083-cb75-49dd-b4c1-44d9db60b4ef';
+    
+    const messages = [
+      ...chatHistory.map(msg => ({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content
+      })),
+      { role: 'user', content: message }
+    ];
+    
+    const requestBody = {
+      model: 'doubao-seed-1-6-251015',
+      max_completion_tokens: 65535,
+      messages: messages,
+      reasoning_effort: 'medium'
+    };
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(requestBody),
+      signal: AbortSignal.timeout(60000)
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('豆包API错误响应:', errorText);
+      throw new Error(`豆包API请求失败: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const textResponse = data.choices[0].message.content;
+    
+    return {
+      success: true,
+      text: textResponse
+    };
+  } catch (error) {
+    console.error('豆包API调用失败:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+}
+
+async function sendMessage(message) {
+  if (!message.trim()) return;
+  
+  addMessage('user', message);
+  chatInput.value = '';
+  chatSendBtn.disabled = true;
+  
+  showTypingIndicator();
+  
+  const doubaoResult = await callDoubaoApi(message);
+  
+  removeTypingIndicator();
+  
+  if (doubaoResult.success) {
+      // 清洗豆包回复，移除表情符号和不可读字符
+      let responseText = doubaoResult.text;
+      // 使用正则表达式移除所有表情符号
+      responseText = responseText.replace(/[\u{1F600}-\u{1F6FF}\u{1F300}-\u{1F5FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E0}-\u{1F1FF}\u{1F680}-\u{1F6FF}\u{26A0}-\u{26FF}\u{FE0F}]/gu, '');
+      // 移除多余的空白字符
+      responseText = responseText.replace(/\s+/g, ' ').trim();
+      
+      addMessage('ai', responseText);
+    
+    if (responseText.length <= 200) {
+      const messageDiv = chatMessages.lastElementChild;
+      const selectedModel = chatModelSelect ? chatModelSelect.value : 'xiaoai';
+      
+      showGeneratingIndicator(messageDiv);
+      
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress = Math.min(progress + Math.random() * 15, 90);
+        updateGeneratingProgress(progress);
+      }, 200);
+      
+      // 在文本前添加3个-符号，使生成的音频更加流畅
+      const textWithPrefix = `   ${responseText}`;
+      const ttsResult = await callChatApi(textWithPrefix, selectedModel);
+      
+      clearInterval(progressInterval);
+      updateGeneratingProgress(100);
+      setTimeout(() => removeGeneratingIndicator(), 300);
+      
+      if (ttsResult.success) {
+        const audioContainer = document.createElement('div');
+        audioContainer.className = 'chat-audio-container';
+        audioContainer.innerHTML = `
+          <audio controls class="chat-audio-player">
+            <source src="${ttsResult.audioUrl}" type="audio/wav">
+            您的浏览器不支持音频播放
+          </audio>
+        `;
+        messageDiv.querySelector('.message-content').appendChild(audioContainer);
+      } else {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'chat-length-warning';
+        errorDiv.innerHTML = `<span>语音生成失败：${ttsResult.error}</span>`;
+        messageDiv.querySelector('.message-content').appendChild(errorDiv);
+      }
+    } else {
+      const messageDiv = chatMessages.lastElementChild;
+      const lengthWarning = document.createElement('div');
+      lengthWarning.className = 'chat-length-warning';
+      lengthWarning.innerHTML = `<span>回复文本过长（${responseText.length}字），未生成语音</span>`;
+      messageDiv.querySelector('.message-content').appendChild(lengthWarning);
+    }
+  } else {
+    addMessage('ai', `抱歉，处理您的请求时遇到问题：${doubaoResult.error}。请检查豆包API密钥或网络连接。`);
+  }
+  
+  chatSendBtn.disabled = false;
+}
+
+// 移除重复的AI问答事件监听器 - 已在initAIChat函数中实现

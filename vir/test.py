@@ -9,7 +9,7 @@ url = "http://1vc184tz57649.vicp.fun/tts"
 payload = {
     "text": "你好，我是数字人小爱，今天过得怎么样？",#待合成的文本
     "text_lang": "zh",  # 文本语言
-    "ref_audio_path": "D:/1/ai study/GPT-SoVITS-v2pro-20250604/output/slicer_opt/素材.mp3_0001644800_0001769600.wav",  # 参考音频路径
+    "ref_audio_path": "D:/1/ai study/GPT-SoVITS-v2pro-20250604/output/me.out/素材.mp3_0001644800_0001769600.wav",  # 参考音频路径
     "prompt_lang": "zh",  # 提示文本语言
     "prompt_text": "",  # 提示文本
     "text_split_method": "cut3",  # 文本分割方法（注意：原 URL 中重复定义，这里以 "cut0" 为准）

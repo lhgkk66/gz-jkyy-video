@@ -10,100 +10,45 @@
 </head>
 <body>
   <div class="app-container">
-    <!-- 侧边栏 -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <div class="logo">
-          <div class="logo-icon">🎙️</div>
-          <span class="logo-text">VoiceClone</span>
-        </div>
-        <button class="toggle-btn" id="toggleSidebar" title="收起侧边栏">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/>
-          </svg>
-        </button>
+    <!-- 顶部导航栏 - PC和移动端通用 -->
+  <header class="mobile-header">
+    <div class="mobile-header-left">
+      <div class="logo-mini">
+        <div class="logo-icon">🎙️</div>
       </div>
-      
-      <nav class="sidebar-nav">
-        <a href="#" class="nav-item active" data-page="voice-clone">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
-            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-            <line x1="12" x2="12" y1="19" y2="22"/>
-          </svg>
-          <span class="nav-text">声音克隆</span>
-        </a>
-        <a href="#" class="nav-item" data-page="voice-library">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 18V5l12-2v13"/>
-            <circle cx="6" cy="18" r="3"/>
-            <circle cx="18" cy="16" r="3"/>
-          </svg>
-          <span class="nav-text">声音库</span>
-        </a>
-        <a href="#" class="nav-item" data-page="settings">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
-            <circle cx="12" cy="12" r="3"/>
-          </svg>
-          <span class="nav-text">设置</span>
-        </a>
+      <h1 class="mobile-page-title">AI智能问答</h1>
+      <!-- 页面导航菜单 -->
+      <nav class="top-nav">
+        <button class="nav-btn" data-page="ai-chat" class="active">问答</button>
+        <button class="nav-btn" data-page="voice-clone">克隆</button>
+        <button class="nav-btn" data-page="voice-library">声音库</button>
+        <button class="nav-btn" data-page="settings">设置</button>
       </nav>
-      
-      <div class="sidebar-footer">
-        <div class="version-info">
-          <span class="nav-text">v1.0.0</span>
-        </div>
-      </div>
-    </aside>
+    </div>
+  </header>
 
     <!-- 主内容区 -->
     <main class="main-content">
       <!-- 声音克隆页面 -->
-      <div class="page active" id="page-voice-clone">
+      <div class="page" id="page-voice-clone">
         <div class="page-header">
-          <h1 class="page-title">AI声音克隆</h1>
-          <p class="page-subtitle">上传音频样本，输入文本，生成自然流畅的克隆语音</p>
-        </div>
-
-        <div class="content-grid">
-          <!-- 模型选择区 -->
-          <div class="card">
-            <div class="card-header">
-              <h2 class="card-title">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="17 8 12 3 7 8"/>
-                  <line x1="12" x2="12" y1="3" y2="15"/>
-                </svg>
-                选择声音模型
-              </h2>
-            </div>
-            <div class="card-content">
-              <div class="model-selector">
-                <!-- 文件夹选择按钮 -->
-                <div class="folder-selector">
-                  <button id="selectFolderBtn" class="btn-secondary">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-                    </svg>
-                    选择模型文件夹
-                  </button>
-                  <input type="file" id="folderInput" webkitdirectory directory multiple hidden>
-                  <p class="selected-folder" id="selectedFolder">默认模型</p>
-                </div>
-                
-                <!-- 模型选择下拉框 -->
-                <select id="modelSelect" class="model-select" disabled>
-                  <option value="">请先选择模型文件夹</option>
-                  <!-- 模型列表将通过JavaScript动态生成 -->
-                </select>
-                
-                <!-- 模型提示信息 -->
-                <p id="modelHint" class="model-hint hidden">暂无其他模型，联系开发者添加</p>
-              </div>
-            </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h1 class="page-title">AI声音克隆</h1>
+            <p class="page-subtitle">上传音频样本，输入文本，生成自然流畅的克隆语音</p>
           </div>
+          <!-- 模型选择区 - 右上角 -->
+          <div class="voice-clone-model-selector">
+            <select id="voiceModelSelect" class="model-select">
+              <option value="xiaoyou">小勇模型</option>
+              <option value="xiaoxu">小徐模型</option>
+              <option value="xiaoai" selected>小爱助手</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-grid">
 
           <!-- 文本输入区 -->
           <div class="card">
@@ -379,6 +324,62 @@
             </svg>
             模型训练
           </button>
+        </div>
+      </div>
+
+      <!-- AI问答页面 -->
+      <div class="page active" id="page-ai-chat">
+        <div class="page-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h1 class="page-title">AI智能问答</h1>
+            <p class="page-subtitle">基于大语言模型的智能对话系统，随时为您解答问题</p>
+          </div>
+          <!-- 模型选择区 - 右上角 -->
+          <div class="chat-model-selector">
+            <select id="chatModelSelect" class="model-select">
+              <option value="xiaoyou">小勇模型</option>
+              <option value="xiaoxu">小徐模型</option>
+              <option value="xiaoai" selected>小爱助手</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-container">
+        <!-- 聊天消息区域 -->
+        <div class="chat-messages" id="chatMessages">
+          <div class="message message-ai">
+            <div class="message-avatar">🤖</div>
+            <div class="message-content">
+              <p>您好！我是AI智能助手，请问有什么可以帮助您的？</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 聊天输入区域 -->
+        <div class="chat-input-area">
+            
+            <div class="chat-input-wrapper">
+              <textarea 
+                class="chat-input" 
+                id="chatInput" 
+                placeholder="输入您的问题..."
+                rows="1"
+              ></textarea>
+              <button class="chat-send-btn" id="chatSendBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="22" y1="2" x2="11" y2="13"/>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+              </button>
+            </div>
+            <div class="chat-options">
+              <button class="chat-option-btn" data-question="介绍一下你自己">介绍一下你自己</button>
+              <button class="chat-option-btn" data-question="你能做什么">你能做什么</button>
+              <button class="chat-option-btn" data-question="如何克隆声音">如何克隆声音</button>
+            </div>
+          </div>
         </div>
       </div>
 
