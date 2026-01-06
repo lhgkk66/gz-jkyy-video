@@ -7,7 +7,7 @@ const mobilePageTitle = document.querySelector('.mobile-page-title');
 
 // 页面标题映射表
 const pageTitles = {
-  'ai-chat': 'AI智能问答',
+  'ai-chat': '美容助理小爱',
   'voice-clone': 'AI声音克隆',
   'voice-library': '声音库',
   'settings': '设置'
@@ -16,7 +16,7 @@ const pageTitles = {
 // 更新移动端页面标题
 function updateMobilePageTitle(pageName) {
   if (mobilePageTitle) {
-    mobilePageTitle.textContent = pageTitles[pageName] || 'AI智能问答';
+    mobilePageTitle.textContent = pageTitles[pageName] || '美容助理小爱';
   }
 }
 
@@ -672,6 +672,7 @@ function initAIChat() {
   const chatInput = document.getElementById('chatInput');
   const chatSendBtn = document.getElementById('chatSendBtn');
   const chatOptionBtns = document.querySelectorAll('.chat-option-btn');
+  const voiceAnswerToggle = document.getElementById('voiceAnswerToggle');
   // const chatModelSelect = document.getElementById('chatModelSelect');
   
   // 检查必要元素是否存在
@@ -684,6 +685,17 @@ function initAIChat() {
   
   // 重置聊天历史
   chatHistory = [];
+  
+  // 语音回答开关状态，默认为false（不调用TTS API）
+  let useTTS = false;
+  
+  // 语音回答开关事件监听器
+  if (voiceAnswerToggle) {
+    voiceAnswerToggle.addEventListener('change', () => {
+      useTTS = voiceAnswerToggle.checked;
+      console.log('语音回答开关状态:', useTTS ? '开启' : '关闭');
+    });
+  }
   
   // 内部函数定义
   function addMessage(role, content) {
@@ -834,7 +846,7 @@ function initAIChat() {
           chatHistory.shift();
         }
         
-        if (responseText.length <= 200) {
+        if (responseText.length <= 200 && useTTS) {
           const chatModelSelect = document.getElementById('chatModelSelect');
           const selectedModel = chatModelSelect ? chatModelSelect.value : 'xiaoai';
           
@@ -870,6 +882,8 @@ function initAIChat() {
             errorDiv.innerHTML = `<span>语音生成失败：${ttsResult.error}</span>`;
             messageDiv.querySelector('.message-content').appendChild(errorDiv);
           }
+        } else if (!useTTS) {
+          // 语音回答关闭时，不显示长度警告
         } else {
           const lengthWarning = document.createElement('div');
           lengthWarning.className = 'chat-length-warning';
@@ -892,7 +906,7 @@ function initAIChat() {
           
           addMessage('ai', responseText);
           
-          if (responseText.length <= 200) {
+          if (responseText.length <= 200 && useTTS) {
             const messageDiv = chatMessages.lastElementChild;
             const chatModelSelect = document.getElementById('chatModelSelect');
             const selectedModel = chatModelSelect ? chatModelSelect.value : 'xiaoai';
@@ -929,6 +943,8 @@ function initAIChat() {
               errorDiv.innerHTML = `<span>语音生成失败：${ttsResult.error}</span>`;
               messageDiv.querySelector('.message-content').appendChild(errorDiv);
             }
+          } else if (!useTTS) {
+            // 语音回答关闭时，不显示长度警告
           } else {
             const messageDiv = chatMessages.lastElementChild;
             const lengthWarning = document.createElement('div');

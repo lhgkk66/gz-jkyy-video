@@ -16,7 +16,7 @@
       <div class="logo-mini">
         <div class="logo-icon">🎙️</div>
       </div>
-      <h1 class="mobile-page-title">AI智能问答</h1>
+      <h1 class="mobile-page-title">美容助理小爱</h1>
       <!-- 页面导航菜单 -->
       <nav class="top-nav">
         <button class="nav-btn" data-page="ai-chat" class="active">问答</button>
@@ -332,16 +332,27 @@
         <div class="page-header">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <div>
-            <h1 class="page-title">AI智能问答</h1>
+            <h1 class="page-title">美容助理小爱</h1>
             <p class="page-subtitle">基于大语言模型的智能对话系统，随时为您解答问题</p>
           </div>
-          <!-- 模型选择区 - 右上角 -->
-          <div class="chat-model-selector">
-            <select id="chatModelSelect" class="model-select">
-              <option value="xiaoyou">小勇模型</option>
-              <option value="xiaoxu">小徐模型</option>
-              <option value="xiaoai" selected>小爱助手</option>
-            </select>
+          <!-- 功能控制区 - 右上角 -->
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <!-- 语音回答开关 -->
+            <div class="toggle-container">
+              <label for="voiceAnswerToggle" class="toggle-label">语音回答</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="voiceAnswerToggle" class="toggle-input">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <!-- 模型选择区 -->
+            <div class="chat-model-selector">
+              <select id="chatModelSelect" class="model-select">
+                <option value="xiaoyou">小勇模型</option>
+                <option value="xiaoxu">小徐模型</option>
+                <option value="xiaoai" selected>小爱助手</option>
+              </select>
+            </div>
           </div>
         </div>
       </div>
@@ -352,7 +363,7 @@
           <div class="message message-ai">
             <div class="message-avatar">🤖</div>
             <div class="message-content">
-              <p>您好！我是AI智能助手，请问有什么可以帮助您的？</p>
+              <p>您好！我是美容助理小爱，请问有什么可以帮助您的？</p>
             </div>
           </div>
         </div>
@@ -377,7 +388,7 @@
             <div class="chat-options">
               <button class="chat-option-btn" data-question="介绍一下你自己">介绍一下你自己</button>
               <button class="chat-option-btn" data-question="你能做什么">你能做什么</button>
-              <button class="chat-option-btn" data-question="如何克隆声音">如何克隆声音</button>
+              <button class="chat-option-btn" data-question="我想了解更多">我想了解更多</button>
             </div>
           </div>
         </div>
